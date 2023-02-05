@@ -1,69 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Tesseract.js Video Streaming Recognition</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Tesseract.js demo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js"></script>
+
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js" integrity="sha256-hlKLmzaRlE8SCJC1Kw8zoUbU8BxA+8kR3gseuKfMjxA=" crossorigin="anonymous"></script>
+
+<script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
+<link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" type="text/css" />
+
   <link rel="stylesheet" href="./css/style.css">
   <script src='https://unpkg.com/tesseract.js@v2.0.0-beta.1/dist/tesseract.min.js'></script>
+  <script src="main.js"></script>
 </head>
 <body>
-  <div id="root">
-    <video id="poem-video" width="640" height="360" crossorigin="anonymous">
-      <source src="./do-not-go-gentle.mp4" type="video/mp4">
-    </video>
-    <div id="sep"></div>
-    <div id="messages">
+  <div class="container-fluid">
+    <form>
+
+      <div class="form-row">
+        <video></video>
+        <canvas></canvas>
+      </div>
+      <div class="form-row">
+        <div id="messages">
+      </div>
+    </form>
     </div>
-  </div>
-  <script>
-    const { createWorker, createScheduler } = Tesseract;
-    const scheduler = createScheduler();
-    const video = document.getElementById('poem-video');
-    const messages = document.getElementById('messages');
-    let timerId = null;
-
-    const addMessage = (m, bold) => {
-      let msg = `<p>${m}</p>`;
-      if (bold) {
-        msg = `<p class="bold">${m}</p>`;
-      }
-      messages.innerHTML += msg;
-      messages.scrollTop = messages.scrollHeight;
-    }
-
-    const doOCR = async () => {
-      const c = document.createElement('canvas');
-      c.width = 640;
-      c.height = 360;
-      c.getContext('2d').drawImage(video, 0, 0, 640, 360);
-      const start = new Date();
-      const { data: { text } } = await scheduler.addJob('recognize', c);
-      const end = new Date()
-      addMessage(`[${start.getMinutes()}:${start.getSeconds()} - ${end.getMinutes()}:${end.getSeconds()}], ${(end - start) / 1000} s`);
-      text.split('\n').forEach((line) => {
-        addMessage(line);
-      });
-    };
-
-    (async () => {
-      addMessage('Initializing Tesseract.js');
-      for (let i = 0; i < 4; i++) {
-        const worker = createWorker();
-        await worker.load();
-        await worker.loadLanguage('eng');
-        await worker.initialize('eng');
-        scheduler.addWorker(worker);
-      }
-      addMessage('Initialized Tesseract.js');
-      video.addEventListener('play', () => {
-        timerId = setInterval(doOCR, 1000);
-      });
-      video.addEventListener('pause', () => {
-        clearInterval(timerId);
-      });
-      addMessage('Now you can play the video. :)');
-      video.controls = true;
-    })();
-  </script>
 </body>
 </html>
